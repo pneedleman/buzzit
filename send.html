@@ -1,0 +1,566 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+
+<title>VectorLover</title>
+
+<meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
+<meta name="author" content="Paul Needleman" />
+<meta name="description" content="Site Description Here" />
+<meta name="keywords" content="keywords, here" />
+<meta name="robots" content="index, follow, noarchive" />
+<meta name="googlebot" content="noarchive" />
+
+<script language="javascript" >
+
+function Selected(method) {
+  
+  //se=document.getElementById("contact");
+  //alert(method);
+  
+   // ma=document.getElementById("mail");
+    em=document.getElementById("emaildiv");
+    ph=document.getElementById("phonediv");
+  
+ // if (method=="mail") ma.style.display="block";
+ //   else ma.style.display="none";
+  if (method=="none")em.style.display="none";
+   else em.style.display="none";
+  if (method=="email") em.style.display="";
+    else em.style.display="none";
+  if (method=="text") ph.style.display="" ;
+    else ph.style.display="none";
+
+}
+
+
+function checkform(){
+
+	 con=document.getElementById("contact").value;
+	 ema=document.getElementById("email").value;
+	 dte=document.getElementById("date").value;
+
+
+	 
+	if (con == "none")
+	{
+		// something is wrong
+		alert('Please select a valid value for Contact Method');
+		return false;
+	}
+//	else if (ema == "")
+//	{
+//		// something else is wrong
+//		alert('Please enter a valid email');
+//		return false;
+//	}
+	// If the script gets this far through all of your fields
+	// without problems, it's ok and you can submit the form
+
+	return true;
+}
+	
+</script>
+
+<link rel="stylesheet" href="images/default.css" type="text/css" />
+
+<script language="JavaScript" src="calendar2.js"></script>
+
+
+</head>
+
+<?
+
+ if(($_POST['submitted'])=='true'){
+  
+   
+   $date = $_POST['date'];
+   $cell = $_POST['cell'];
+   $date = $_POST['date'];
+   $hr = $_POST['time_hr'];
+   $min = $_POST['time_min'];
+   $AMPM = $_POST['time_AMPM'];
+   $subject = $_POST['subject'];
+   $body    = $_POST['message'];
+   $recur    = $_POST['recur'];
+
+   $contact_type = $_POST['cont_type'];
+   $time = $hr. ":" . $min . " " . $AMPM; 
+
+  if ($contact_type == 'email') {
+      $contact_info = $_POST['email'];   
+   }
+   else if ($contact_type == 'cell')
+	{
+		switch ($_POST['carrier']) {
+			case 'verizon':
+			$carrier= '@vtext.com';
+			break;
+		case 'sprint' :
+			$carrier = "@messaging.sprintpcs.com";
+			break;
+		case 'att':
+			$carrier = "@mobile.att.net";
+			break;
+			}
+		
+		
+	$cell = preg_replace("/[^0-9]/", "", $_POST['cell']);
+
+	
+	$contact_info = $cell . $carrier;
+
+   	}
+			
+         include 'mysql_connect.php';
+         
+        //insert default registration infg
+         $strSQL="INSERT INTO `tasks` ( `email` , `sub` , `body` ,  `next_run_on` , `next_run_time`, `recur` )VALUES ('$contact_info', '$subject', '$body', STR_TO_DATE('$date', '%m/%d/%Y'), STR_TO_DATE('$time', '%h:%i %p'), '$recur');";
+		 
+			  $result = mysql_query($strSQL);
+			
+		 	
+       if (!$result) {
+        die("Invalid query:<font color = 'red'>  " . mysql_error(). "</font>");
+       }
+	
+	echo "<center><font color=red>";
+	
+	if($recur == "None") {
+	    $recur = ""; 
+	}	
+	   
+	echo "Your " . $recur .  " reminder has been set for " . $contact_info. " on ". $date ." at " . $time;
+   
+   echo "</center></font><br>";
+
+	}
+	
+?>
+
+
+
+
+<body>
+<!-- wrap starts here -->
+<div id="wrap">
+
+	<!--header -->
+	<div id="header">			
+				
+		<h1 id="logo-text"><a href="index.html" title="">vectorlover</a></h1>		
+		<p id="slogan">put your site slogan here...</p>		
+		
+		<div id="top-menu">
+			<p><a href="index.html">rss feed</a> | <a href="index.html">contact</a> | <a href="index.html">login</a></p>
+		</div>		
+					
+	<!--header ends-->					
+	</div>
+		
+	<!-- navigation starts-->	
+	<div  id="nav">
+		<ul>
+			<li><a href="index.html">Home</a></li>
+			<li id="current"><a href="style.html">Style Demo</a></li>
+			<li><a href="blog.html">Blog</a></li>
+			<li><a href="index.html">Services</a></li>
+			<li><a href="index.html">Support</a></li>
+			<li><a href="index.html">About</a></li>		
+		</ul>
+	<!-- navigation ends-->	
+	</div>					
+			
+	<!-- content starts -->
+	<div id="content">
+	
+		<div id="main">
+				
+			<form  name="setreminder" method="post" action="send.html" onSubmit="return checkform()">
+				<table>		
+				
+						<p style="font-size:18px;">Enter your buzz</p>
+				
+					<tr>
+					<td style="text-align:right;"><label>Contact Method </label>
+					  <span class="small"> Select Email or Text Message</span>
+					</td>
+					<td> 
+					<select name="contact" id="contact" style="width: 120px;" onchange="Selected(this.value);" >
+						 <option value="none" selected="true"> Select: </option>
+						 <option value="email">E-mail</option>
+						  <option value="text">Text Message</option>
+						</select>
+					</td>
+					</tr>
+
+					
+					<tr id ="emaildiv" style="display:none">
+						<td style="text-align:right;"><label>Email </label>
+						  <span class="small"> Enter Valid E-mail Address</span>
+						</td>
+						<td><input type="Text" name="email" id="email" value="" size=40 ></td>
+					</tr>
+				
+					<tr id ="phonediv" style="display: none;">
+						<td style="text-align:right;"><label>Cell Phone # </label>
+						<span class="small"> Enter Valid Phone Number ans choose carrier
+						</span></td>
+						<td><input type="Text" name="cell" value="" >
+					   	<select name="recur" id="textfield">
+							<option select=true>Verizon</option>
+							<option>AT&T</option>
+							<option>Sprint</option>
+						</select>
+					</td>
+					  
+					  
+					</tr>
+					<tr>
+					  <td style="text-align:right;"><label> Subject </label>
+					  <span class="small">Enter Subject of the Reminder
+						</span></td>
+					  <td><input type="Text" name="subject" value="" size=40 class=text></td>
+					</tr>
+					<tr>
+					  <td valign =top style="text-align:right;"><label>Reminder</label>
+					  <span class="small"> Enter Message
+						</span></td>
+					  <td><textarea rows="3" cols="38" name="message" class=text></textarea></td>
+					</tr>
+					<tr>
+					  <td style="text-align:right;"><label>Date </label>
+					  <span class="small"> Select Date
+						</span></td>
+					  <td>	<input type="Text" name="date" id="date" value="" readonly=true>
+							<a href="javascript:cal.popup();">	
+							<img src="images/cal.gif" style="margin-bottom: -10px; padding:4px;"  alt="Click Here to Pick the date"></a><br>
+ 					   
+					   </td>
+					</tr>
+					<tr>
+					  <td style="text-align:right;"><label> Time* </label>
+					  <span class="small"> Select the time / timezone
+						</span></td>
+					  <td>
+						<select name="time_hr" class=text> 
+						<option>1</option>
+						<option>2</option>
+						<option>3</option>
+						<option>4</option>
+						<option>5</option>
+						<option>6</option>
+						<option>7</option>
+						<option>8</option>
+						<option>9</option>
+						<option>10</option>
+						<option>11</option>
+						<option>12</option>
+					   </select>
+						<select name="time_min" class=text>
+						<option select=true>00</option>
+						<option>05</option>
+						<option>10</option>
+						<option>15</option>
+						<option>20</option>
+						<option>25</option>
+						<option>30</option>
+						<option>35</option>
+						<option>40</option>
+						<option>45</option>
+						<option>50</option>
+						<option>55</option>
+					   </select>
+						<select name="time_AMPM" class=text>
+						<option>AM</option>
+						<option>PM</option>
+					   </select>
+					   
+					   <select name="timezone" >
+						<option value="-5.0">Eastern (-5:00)</option>
+						<option value="-6.0">Central (-6:00)</option>
+						<option value="-7.0">Mountain (-7:00)</option>
+						<option value="-8.0">Pacific (-8:00)</option>
+						<option value="-9.0">Alaska (-9:00)</option>
+						<option value=""> Hawaii (-10:00)</option>
+
+					   </select>
+					  </td>
+					   
+					 </td>
+					  <input type ="hidden" name="submitted" value="true">
+					</tr>
+					
+				
+				
+					
+					
+					<tr>
+					  <td style="text-align:right;"><label>Recurrence </label>
+					  <span class="small"> How often do you want alert to repeat
+						</span></td>
+					  <td><select name="recur" class=text>
+					   <option select=true>Once</option>
+					   <option>Daily</option>
+					   <option>Weekly</option>
+					   <option>Monthly</option>
+					   <option>Yearly</option>
+					   </select>
+					  </td>
+					  	  
+					</tr>
+                    <tr>	
+						<td></td>
+						<td><input type="submit" value="Submit Reminder" class="button"></td>
+					</tr>
+					</table>	
+			
+		<script language="JavaScript">
+				var cal = new calendar2(document.forms['setreminder'].elements['date']);
+				cal.year_scroll = true;
+				cal.time_comp = false;
+		</script>
+	
+	
+					</form>
+
+			
+			<p class="post-footer">		
+			<a href="index.html" class="readmore">Read more</a> |
+			<a href="index.html" class="comments">Comments (3)</a> |				
+			<span class="date">July 20, 2008</span>	
+			</p>
+			
+			<h2><a href="index.html">Common XHTML Elements</a></h2>
+			
+			<h3>Text and Image</h3>
+			
+			<p><a href="http://getfirefox.com/"><img src="images/firefox-gray.jpg" width="100" height="120" alt="firefox" class="float-left" /></a>
+			Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec libero. Suspendisse bibendum. 
+			Cras id urna. Morbi tincidunt, orci ac convallis aliquam, lectus turpis varius lorem, eu 
+			posuere nunc justo tempus leo. Donec mattis, purus nec placerat bibendum, dui pede condimentum 
+			odio, ac blandit ante orci ut diam. Cras fringilla magna. Phasellus suscipit, leo a pharetra 
+			condimentum, lorem tellus eleifend magna, eget fringilla velit magna id neque. Curabitur vel urna. 
+			In tristique orci porttitor ipsum. Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Donec libero. Suspendisse bibendum. 
+			Cras id urna. Morbi tincidunt, orci ac convallis aliquam, lectus turpis varius lorem, eu 
+			posuere nunc justo tempus leo. 				
+			</p>
+			
+			<p>
+         A <a href="style.html">link</a>, 
+			<acronym title="this really isn't a very good description">acronym</acronym>, 
+			<strong>strong text</strong> and 
+			<del>deleted text</del>.
+         </p>
+			
+			<h3>Code</h3>				
+			<p><code>
+			code-sample { <br />
+			font-weight: bold;<br />
+			font-style: italic;<br />				
+			}		
+			</code></p>	
+				
+			<h3>Example Lists</h3>
+			
+			<ol>
+				<li>Here is an example</li>
+				<li>of an ordered list</li>								
+			</ol>	
+							
+			<ul>
+				<li>Here is an example</li>
+				<li>of an unordered list</li>								
+			</ul>			
+			
+			<dl>
+            <dt>Definition title</dt>
+            <dd>Definition description</dd>
+            <dt>Definition title</dt>
+            <dd>Definition description</dd>
+         </dl>	
+			
+			<h3>Blockquote</h3>
+				
+			<blockquote>
+			<p>We can let circumstances rule us, or we can take 
+			charge and rule our lives from within.</p>
+			<p class="align-right"> - Earl Nightingale</p>
+			</blockquote>		
+			
+			<h3>Headers</h3>
+						
+			<h1>H1 Heading</h1>	
+			<h2>H2 Heading</h2>		
+			<h3>H3 Heading</h3>								
+				
+			<h3>Tabular Data</h3>							
+			<table>
+				<tr>
+					<th><strong>post</strong> date</th>
+					<th>title</th>
+					<th>description</th>
+				</tr>
+				<tr>
+					<td>04.18.2008</td>
+					<td><a href="index.html">Augue non nibh</a></td>
+					<td><a href="index.html">Lobortis commodo metus vestibulum</a></td>
+				</tr>
+				<tr>
+					<td>04.18.2008</td>
+					<td><a href="index.html">Fusce ut diam bibendum</a></td>
+					<td><a href="index.html">Purus in eget odio in sapien</a></td>
+				</tr>
+				<tr>
+					<td>04.18.2008</td>
+					<td><a href="index.html">Maecenas et ipsum</a></td>
+					<td><a href="index.html">Adipiscing blandit quisque eros</a></td>
+				</tr>
+				<tr>
+					<td>04.18.2008</td>
+					<td><a href="index.html">Sed vestibulum blandit</a></td>
+					<td><a href="index.html">Cras lobortis commodo metus lorem</a></td>
+				</tr>
+			</table>
+								
+			<h3>Contact Form</h3>		
+			
+			<form action="index.html" method="get" id="contactform">		
+								
+				<p>Send me a message</p>
+			
+				<p>
+					<label for="subject">Subject</label><br />
+         		<select id="subject" name="subject" tabindex="1">
+           			<option value="1">Option One</option>
+          			<option value="2">Option Two</option>
+          	 		<option value="3">Option Three</option>
+         		</select>
+				</p>	
+			
+				<p>	
+					<label for="name">Your Name</label><br />
+					<input id="name" name="name" value="Your Name" type="text" tabindex="2" />
+				</p>
+			
+				<p>
+					<label for="email">Your Email Address</label><br />
+					<input id="email" name="email" value="Your Email" type="text" tabindex="3" />
+				</p>
+					
+				<p>
+					<label for="message">Your Message</label><br />
+					<textarea id="message" name="message" rows="10" cols="20" tabindex="4"></textarea>
+				</p>	
+			
+				<p class="no-border">
+					<input class="button" type="submit" value="Submit" tabindex="5" />
+         		<input class="button" type="reset" value="Reset" tabindex="6" />	
+				</p>
+					
+			</form>				
+
+		<!-- main ends -->	
+		</div>
+				
+		<div id="sidebar">
+		
+			<h3>Login <a href="index.html"><img src="images/gravatar.jpg" width="40" height="40" alt="image" class="float-right" /></a></h3>			
+
+			
+			<form method="get" action="">
+				
+					Username:<input type="text" id="s" name="user" value="" />
+					Password:<input type="text" id="s" name="pass" value="" />
+					<br />
+					<input type="submit" class="button" value="Sign In" />
+					<div> <a href="register.php">register</a> | <a href="#">forgot password?</a></div>			
+			
+				</form>
+			
+			Register to create and modify your buzz schedules. 
+						
+			<h3>Search</h3>	
+			
+			<form id="qsearch" action="index.html" method="get" >
+			<p>
+			<label for="qsearch">Search:</label>
+			<input class="tbox" type="text" name="qsearch" value="Search this site..." title="Start typing and hit ENTER" />
+			<input class="btn" alt="Search" type="image" name="searchsubmit" title="Search" src="images/search.gif" />
+			</p>
+			</form>		
+			
+			<h3>Sidebar Menu</h3>
+			<ul class="sidemenu">				
+				<li><a href="index.html">Home</a></li>
+				<li><a href="index.html#TemplateInfo">TemplateInfo</a></li>
+				<li><a href="style.html">Style Demo</a></li>
+				<li><a href="blog.html">Blog</a></li>
+				<li><a href="http://www.styleshout.com/">More Free Templates</a></li>	
+				<li><a href="http://www.4templates.com/?aff=ealigam">Premium Templates</a></li>					
+			</ul>	
+				
+			<h3>Links</h3>
+			<ul class="sidemenu">
+				<li><a href="http://www.alistapart.com">Alistapart</a></li>					
+				<li><a href="http://www.cssremix.com">CSS Remix</a></li>
+				<li><a href="http://www.cssmania.com/">CSS Mania</a></li>				
+			</ul>
+			
+			<h3>Sponsors</h3>
+			<ul class="sidemenu">
+				<li><a href="http://themeforest.net?ref=ealigam">ThemeForest <br /><span>Your Choice for Site Templates &amp; Wordpress Themes</span></a></li>
+				<li><a href="http://www.4templates.com/?aff=ealigam">4templates <br /><span>Low Cost Hi-Quality Templates</span></a></li>
+				<li><a href="http://store.templatemonster.com?aff=ealigam">TemplateMonster <br /><span>Delivering the Best Templates on the Net!</span></a></li>
+				<li><a href="http://tinyurl.com/3cgv2m">Text Link Ads <br /><span>Monetized your website</span></a></li>
+				<li><a href="http://www.fotolia.com/partner/114283">Fotolia <br /><span>Free stock images or from $1</span></a> </li>
+				<li><a href="http://www.dreamhost.com/r.cgi?287326">Dreamhost <br /><span>Premium webhosting</span></a></li>
+			</ul>
+			
+			<h3>Wise Words</h3>
+			<p>&quot;We can let circumstances rule us, or we can take 
+			charge and rule our lives from within.&quot;</p>
+					
+			<p class="align-right">- Earl Nightingale</p>			
+					
+			<h3>Support Styleshout</h3>
+			<p>If you are interested in supporting my work and would like to contribute, you are
+			welcome to make a small donation through the 
+			<a href="http://www.styleshout.com/">donate link</a> on my website - it will 
+			be a great help and will surely be appreciated.</p>			
+						
+		<!-- sidebar ends -->		
+		</div>		
+		
+	<!-- content ends-->	
+	</div>
+		
+	<!-- footer starts -->		
+	<div id="footer">
+						
+			<p>
+			&copy; All your copyright info here  
+			
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			
+			Design by : <a href="http://www.styleshout.com/">styleshout</a> | 
+			Valid <a href="http://validator.w3.org/check?uri=referer">XHTML</a> | 
+			<a href="http://jigsaw.w3.org/css-validator/check/referer">CSS</a>
+			
+   		&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			
+			<a href="index.html">Home</a>&nbsp;|&nbsp;
+   		<a href="index.html">Sitemap</a>&nbsp;|&nbsp;
+	   	<a href="index.html">RSS Feed</a>
+   		</p>				
+	
+	<!-- footer ends-->
+	</div>
+
+<!-- wrap ends here -->
+</div>
+
+</body>
+</html>
